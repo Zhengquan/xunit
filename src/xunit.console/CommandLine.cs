@@ -230,12 +230,26 @@ namespace Xunit.ConsoleClient
 
                     project.Filters.IncludedClasses.Add(option.Value);
                 }
+                else if (optionName == "-classfile")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -classfile");
+
+                    AddFromFile(option, project.Filters.IncludedClasses);
+                }
                 else if (optionName == "-method")
                 {
                     if (option.Value == null)
                         throw new ArgumentException("missing argument for -method");
 
                     project.Filters.IncludedMethods.Add(option.Value);
+                }
+                else if (optionName == "-methodfile")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -methodfile");
+
+                    AddFromFile(option, project.Filters.IncludedMethods);
                 }
                 else
                 {
@@ -247,6 +261,15 @@ namespace Xunit.ConsoleClient
             }
 
             return project;
+        }
+
+        private static void AddFromFile(KeyValuePair<string, string> option, HashSet<string> includedClasses)
+        {
+            var lines = File.ReadAllLines(option.Value);
+            foreach (var line in lines)
+            {
+                includedClasses.Add(line);
+            }
         }
 
         static KeyValuePair<string, string> PopOption(Stack<string> arguments)
